@@ -7,26 +7,26 @@ const socketio = require("socket.io")(http, {
   },
 });
 
-const file = "files/wordlist.json";
+const file = "files/items.json";
 
-let words = [];
+let items = [];
 
 socketio.on("connection", (socket) => {
-    socket.on("fetchWords", () => {
+    socket.on("fetch", () => {
       fs.readFile(file, 'utf-8', (err, data) => {
         if (err) {
           console.error(err);
           return;
         }
-        words = JSON.parse(data);
-        socketio.emit("wordlist", words);
+        items = JSON.parse(data);
+        socketio.emit("itemlist", items);
       });
     });
 
-    socket.on("addWord", (rus, eng) => {
-      var word = { russian: rus, english: eng };
-      words.push(word);
-      var data = JSON.stringify(words);
+    socket.on("add", (n, c, p) => {
+      var item = { name: n, count: c, price: p };
+      items.push(item);
+      var data = JSON.stringify(items);
       fs.writeFile(file, data, 'utf-8', err => {
         if (err) {
           console.error(err);
