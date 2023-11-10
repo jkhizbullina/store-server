@@ -1,4 +1,5 @@
 const express = require("express")();
+const crypto = require('node:crypto');
 const http = require("http").Server(express);
 const fs = require("fs");
 const socketio = require("socket.io")(http, {
@@ -41,8 +42,8 @@ socketio.on("connection", (socket) => {
     socket.on("get_token", () => {
       var token = crypto.randomUUID();
       tokens.push(token);
-      var data = JSON.stringify(tokens);
-      fs.writeFile(tokenFile, data, 'utf-8', err => {
+      var tokenData = JSON.stringify(tokens);
+      fs.writeFile(tokenFile, tokenData, 'utf-8', err => {
         if (err) {
           console.error(err);
           return;
@@ -52,14 +53,14 @@ socketio.on("connection", (socket) => {
     });
 
     socket.on("check_token", (token) => {
-      fs.readFile(file, 'utf-8', (err, data) => {
+      fs.readFile(tokenFile, 'utf-8', (err, tokenData) => {
         if (err) {
           console.error(err);
           return;
         }
-        tokens = JSON.parse(data);
+        tokens = JSON.parse(tokenData);
       });
-      socketio.emit("token-exists", (tokens.findIndex(token) >= 0));
+      socketio.emit("token-exists", (tokens.includes(token)));
     })
   });
   
