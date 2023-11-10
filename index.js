@@ -8,8 +8,11 @@ const socketio = require("socket.io")(http, {
 });
 
 const file = "files/items.json";
+const tokenFile = "files/tokens.json";
 
 let items = [];
+
+let tokens = [];
 
 socketio.on("connection", (socket) => {
     socket.on("fetch", () => {
@@ -33,6 +36,11 @@ socketio.on("connection", (socket) => {
           return;
         }
       });
+    });
+
+    socket.on("get_token", () => {
+        var token = crypto.randomUUID();
+        tokens.push(token);
     });
   });
   
