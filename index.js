@@ -39,9 +39,28 @@ socketio.on("connection", (socket) => {
     });
 
     socket.on("get_token", () => {
-        var token = crypto.randomUUID();
-        tokens.push(token);
+      var token = crypto.randomUUID();
+      tokens.push(token);
+      var data = JSON.stringify(tokens);
+      fs.writeFile(tokenFile, data, 'utf-8', err => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+      });
+      socketio.emit("token", token);
     });
+
+    socket.on("check_token", (token) => {
+      fs.readFile(file, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        tokens = JSON.parse(data);
+      });
+      socketio.emit("token-exists", (tokens.findIndex(token) >= 0));
+    })
   });
   
 http.listen(3000, () => {
